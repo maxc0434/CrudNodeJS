@@ -15,8 +15,9 @@ const corsOptions = {
     headers: 'Content-Type, Autorization',
     credentials: true,
 };
-// app.use(express.json());
-app.use(cors(corsOptions));
+
+app.use(express.json());
+app.use(cors(corsOptions))
 
 const database = mysql.createConnection({
   host: 'localhost',
@@ -35,6 +36,46 @@ app.get("/", (req, res) => {
     return res.json(data);
   });
 });
+
+app.post("/create", (req, res)=> {
+  const sql = "INSERT INTO student (`name`, `email`) VALUES (?)";
+  const values =[
+    req.body.name,
+    req.body.email
+  ];
+  database.query(sql, [values], (err, data) => {
+    if(err) {
+      return res.status(500).json("Error");
+    }
+    return res.json(data);
+  })
+});
+
+app.put("/update/:id", (req, res)=> {
+  const sql = "update student set `name` = ?, `email` = ? WHERE id =? ";
+  const values =[
+    req.body.name,
+    req.body.email
+  ];
+  const id = req.params.id;
+  database.query(sql, [...values, id], (err, data) => {
+    if(err) {
+      return res.json("Error");
+    }
+    return res.json(data);
+  })
+});
+
+app.delete('/student/:id', (req, res) => {
+  const sql = "DELETE FROM student Where id =?";
+  const id = req.params.id;
+
+  database.query(sql, [id], (err, data) => {
+    if(err) return res.json("Error");
+    return res.json(data);
+  })
+})
+
 
 
 
